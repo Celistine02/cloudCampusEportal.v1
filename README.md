@@ -1,1 +1,1 @@
-# cloudCampusEportal.v1
+# student-portal
