@@ -24,7 +24,7 @@ import {
     return (
       <SidebarContext.Provider value={{ expanded }}>
         <aside
-          className={`h-screen transition-all ${
+          className={`h-screen transition-all duration-300 ease-in-out ${
             expanded ? "w-56" : "w-16"
           } bg-white text-gray-800`}
         >
@@ -32,7 +32,7 @@ import {
             <div className="p-4 pb-2 flex justify-between items-center">
               <img
                 src=""
-                className={`overflow-hidden transition-all ${
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
                   expanded ? "w-24" : "w-0"
                 }`}
               />
@@ -99,7 +99,7 @@ import {
   
     return (
       <li
-        className={`relative flex items-center py-2 px-3 my-1 font-medium rounded-md cursor-pointer transition-colors group ${
+        className={`relative flex items-center py-2 px-3 my-1 font-medium rounded-md cursor-pointer transition-colors duration-300 ease-in-out group ${
           active
             ? "bg-gray-200 text-gray-800"
             : "hover:bg-gray-300 text-gray-800"
@@ -107,7 +107,7 @@ import {
       >
         {icon}
         <span
-          className={`overflow-hidden transition-all ${
+          className={`overflow-hidden transition-all duration-300 ease-in-out ${
             expanded ? "w-40 ml-3" : "w-0"
           } text-gray-800`}
         >
@@ -123,7 +123,7 @@ import {
   
         {!expanded && (
           <div
-            className={`absolute left-full rounded-md px-2 py-1 ml-6 bg-gray-200 text-gray-800 text-sm invisible opacity-20 -translate-x-3 transition-all group-hover:visible group-hover:opacity-100 group-hover:translate-x-0`}
+            className={`absolute left-full rounded-md px-2 py-1 ml-6 bg-gray-200 text-gray-800 text-sm invisible opacity-20 -translate-x-3 transition-all duration-300 ease-in-out group-hover:visible group-hover:opacity-100 group-hover:translate-x-0`}
           >
             {text}
           </div>
