@@ -1,20 +1,29 @@
 import React, { useState, useRef, useEffect } from "react";
+import axios from "axios";
+
+const OPENROUTER_API_KEY =
+  "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";
+
+const SYSTEM_PROMPT = "You are a helpful assistant.";
 
 const ChatbotModal = ({ isOpen, onClose }) => {
+  // Store messages in OpenAI format for API, and also for UI rendering
   const [messages, setMessages] = useState([
-    { from: "bot", text: "Hello! How can I help you today?" }
+    { role: "system", content: SYSTEM_PROMPT }
   ]);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const modalRef = useRef(null);
 
+  // Scroll to bottom on new message
   useEffect(() => {
     if (isOpen && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, isOpen]);
 
-  // Optional: Focus input when modal opens
+  // Focus input when modal opens
   useEffect(() => {
     if (isOpen && modalRef.current) {
       const inputEl = modalRef.current.querySelector("input");
@@ -22,24 +31,61 @@ const ChatbotModal = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
 
+  // For UI, filter out the system message and map roles to "user"/"bot"
+  const getDisplayMessages = () =>
+    messages
+      .filter((msg) => msg.role !== "system")
+      .map((msg) => ({
+        from: msg.role === "user" ? "user" : "bot",
+        text: msg.content
+      }));
+
   const handleInputChange = (e) => {
     setInput(e.target.value);
   };
 
-  const handleSend = (e) => {
+  const handleSend = async (e) => {
     e.preventDefault();
-    if (!input.trim()) return;
-    const userMessage = { from: "user", text: input };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
+    if (!input.trim() || isLoading) return;
 
-    // Simulate bot response (replace with real API call if needed)
-    setTimeout(() => {
+    const userMessage = { role: "user", content: input };
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        {
+          model: "deepseek/deepseek-r1:free",
+          messages: newMessages
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+
+      const botReply = response.data.choices[0].message.content;
       setMessages((prev) => [
         ...prev,
-        { from: "bot", text: "I'm a bot! You said: " + userMessage.text }
+        { role: "assistant", content: botReply }
       ]);
-    }, 800);
+    } catch (error) {
+      let errorMsg = "Sorry, there was an error. Please try again.";
+      if (error.response && error.response.data && error.response.data.error) {
+        errorMsg = error.response.data.error.message || errorMsg;
+      }
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: errorMsg }
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -56,7 +102,19 @@ const ChatbotModal = ({ isOpen, onClose }) => {
           <button style={styles.closeBtn} onClick={onClose}>&times;</button>
         </div>
         <div style={styles.messagesArea}>
-          {messages.map((msg, idx) => (
+          {/* Initial greeting if no user messages yet */}
+          {getDisplayMessages().length === 0 && (
+            <div
+              style={{
+                ...styles.message,
+                alignSelf: "flex-start",
+                background: "#f1f1f1"
+              }}
+            >
+              Hello! How can I help you today?
+            </div>
+          )}
+          {getDisplayMessages().map((msg, idx) => (
             <div
               key={idx}
               style={{
@@ -68,6 +126,19 @@ const ChatbotModal = ({ isOpen, onClose }) => {
               {msg.text}
             </div>
           ))}
+          {isLoading && (
+            <div
+              style={{
+                ...styles.message,
+                alignSelf: "flex-start",
+                background: "#f1f1f1",
+                opacity: 0.7,
+                fontStyle: "italic"
+              }}
+            >
+              Bot is typing...
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
         <form style={styles.inputArea} onSubmit={handleSend}>
@@ -77,8 +148,11 @@ const ChatbotModal = ({ isOpen, onClose }) => {
             onChange={handleInputChange}
             placeholder="Type your message..."
             style={styles.input}
+            disabled={isLoading}
           />
-          <button type="submit" style={styles.sendBtn}>Send</button>
+          <button type="submit" style={styles.sendBtn} disabled={isLoading || !input.trim()}>
+            {isLoading ? "Sending..." : "Send"}
+          </button>
         </form>
       </div>
       <style>
