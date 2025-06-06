@@ -6,12 +6,21 @@ const ChatbotModal = ({ isOpen, onClose }) => {
   ]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
+  const modalRef = useRef(null);
 
   useEffect(() => {
     if (isOpen && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, isOpen]);
+
+  // Optional: Focus input when modal opens
+  useEffect(() => {
+    if (isOpen && modalRef.current) {
+      const inputEl = modalRef.current.querySelector("input");
+      if (inputEl) inputEl.focus();
+    }
+  }, [isOpen]);
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
@@ -37,7 +46,11 @@ const ChatbotModal = ({ isOpen, onClose }) => {
 
   return (
     <div style={styles.overlay}>
-      <div style={styles.modal}>
+      <div
+        ref={modalRef}
+        style={styles.modal}
+        className="chatbot-modal-resizable"
+      >
         <div style={styles.header}>
           <span>Chatbot</span>
           <button style={styles.closeBtn} onClick={onClose}>&times;</button>
@@ -68,6 +81,18 @@ const ChatbotModal = ({ isOpen, onClose }) => {
           <button type="submit" style={styles.sendBtn}>Send</button>
         </form>
       </div>
+      <style>
+        {`
+          .chatbot-modal-resizable {
+            resize: both;
+            overflow: auto;
+            min-width: 400px;
+            min-height: 400px;
+            max-width: 98vw;
+            max-height: 98vh;
+          }
+        `}
+      </style>
     </div>
   );
 };
@@ -85,66 +110,72 @@ const styles = {
   modal: {
     background: "#fff",
     borderRadius: "10px",
-    width: "350px",
-    maxWidth: "90vw",
-    boxShadow: "0 2px 16px rgba(0,0,0,0.2)",
+    width: "900px",
+    height: "700px",
+    maxWidth: "98vw",
+    maxHeight: "98vh",
+    minWidth: "400px",
+    minHeight: "400px",
+    boxShadow: "0 2px 32px rgba(0,0,0,0.25)",
     display: "flex",
     flexDirection: "column",
-    maxHeight: "80vh"
+    resize: "both",
+    overflow: "auto"
   },
   header: {
-    padding: "12px 16px",
+    padding: "18px 24px",
     borderBottom: "1px solid #eee",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     fontWeight: "bold",
-    fontSize: "1.1rem"
+    fontSize: "1.4rem"
   },
   closeBtn: {
     background: "none",
     border: "none",
-    fontSize: "1.5rem",
+    fontSize: "2rem",
     cursor: "pointer",
     color: "#888"
   },
   messagesArea: {
     flex: 1,
-    padding: "16px",
+    padding: "24px",
     overflowY: "auto",
     display: "flex",
     flexDirection: "column",
-    gap: "8px",
+    gap: "12px",
     background: "#fafbfc"
   },
   message: {
-    padding: "8px 12px",
-    borderRadius: "16px",
+    padding: "12px 18px",
+    borderRadius: "20px",
     maxWidth: "80%",
-    fontSize: "0.98rem",
-    marginBottom: "2px"
+    fontSize: "1.15rem",
+    marginBottom: "4px"
   },
   inputArea: {
     display: "flex",
     borderTop: "1px solid #eee",
-    padding: "10px"
+    padding: "16px"
   },
   input: {
     flex: 1,
-    padding: "8px",
-    borderRadius: "20px",
+    padding: "12px",
+    borderRadius: "24px",
     border: "1px solid #ccc",
     outline: "none",
-    fontSize: "1.08rem"
+    fontSize: "1.15rem"
   },
   sendBtn: {
-    marginLeft: "8px",
-    padding: "8px 16px",
-    borderRadius: "20px",
+    marginLeft: "12px",
+    padding: "12px 28px",
+    borderRadius: "24px",
     border: "none",
     background: "#007bff",
     color: "#fff",
     fontWeight: "bold",
+    fontSize: "1.1rem",
     cursor: "pointer"
   }
 };
