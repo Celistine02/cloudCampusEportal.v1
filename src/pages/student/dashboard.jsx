@@ -1,10 +1,16 @@
+import React, { useState } from 'react'
 // import layout
-
 
 // import components
 import MainDashboardArea from '../../components/studentApp/dashboard/mainDashboardArea'
+import ChatbotModal from '../../pages/ClassResults/chatbot'
 
 function Dashboard() {
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const handleOpenChat = () => setIsChatOpen(true);
+  const handleCloseChat = () => setIsChatOpen(false);
+
   return (
     <div>
       <button
@@ -18,10 +24,12 @@ function Dashboard() {
           fontSize: "1rem",
           cursor: "pointer"
         }}
+        onClick={handleOpenChat}
       >
         Online Chat
       </button>
       <MainDashboardArea />
+      <ChatbotModal isOpen={isChatOpen} onClose={handleCloseChat} />
     </div>
   )
 }

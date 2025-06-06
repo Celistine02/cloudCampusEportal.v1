@@ -135,7 +135,7 @@ const styles = {
     borderRadius: "20px",
     border: "1px solid #ccc",
     outline: "none",
-    fontSize: "1rem"
+    fontSize: "1.08rem"
   },
   sendBtn: {
     marginLeft: "8px",
